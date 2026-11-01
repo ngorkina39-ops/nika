@@ -150,7 +150,7 @@ video {
  /* На телефонах 100vh включает скрываемые панели браузера — svh точнее.
     Браузеры без поддержки svh оставят 100vh строкой выше */
  height: 100svh;
- background-image: url("videos/opt/общее.jpg");
+ background-image: url("videos/opt/obhee.jpg");
  background-position: center 65%;
  background-size: cover;
  position: relative;
@@ -830,7 +830,7 @@ font-weight: 700;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url("videos/opt/фон4.jpg");
+    background-image: url("videos/opt/fon4.jpg");
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -841,7 +841,7 @@ font-weight: 700;
           rgba(168, 216, 4, 0.9) 30%,   /* чуть зелёного */
           rgba(168, 216, 4, 1) 100%   /* почти непрозрачный — фото видно */
         ),
-        url("videos/opt/фон4.jpg");
+        url("videos/opt/fon4.jpg");
         filter: brightness(0.95);
       background-position: center center;
       background-size: cover;
