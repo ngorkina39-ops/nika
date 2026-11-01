@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8">
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#222}
+  iframe{border:0;display:block;background:#fff}
+</style>
+</head>
+<body>
+<iframe id="f" scrolling="no"></iframe>
+<script>
+  const p = new URLSearchParams(location.search);
+  const w = Number(p.get('w')) || 390;
+  const h = Number(p.get('h')) || 844;
+  const y = Number(p.get('scroll')) || 0;
+  const sel = p.get('sel');
+  const oy = Number(p.get('oy')) || 0;
+  const f = document.getElementById('f');
+  f.style.width = w + 'px';
+  f.style.height = h + 'px';
+  f.src = '/index.html?w=' + w + '&t=' + Date.now();
+  f.onload = () => {
+    setTimeout(() => {
+      const d = f.contentDocument;
+      const win = f.contentWindow;
+      d.documentElement.style.scrollBehavior = 'auto';
+      let top = y;
+      if (sel) {
+        const el = d.querySelector(sel);
+        if (el) top = el.getBoundingClientRect().top + win.scrollY;
+      }
+      top += oy;
+      win.scrollTo({ top, left: 0, behavior: 'instant' });
+      d.documentElement.scrollTop = top;
+      d.body.scrollTop = top;
+    }, 600);
+  };
+</script>
+</body>
+</html>
