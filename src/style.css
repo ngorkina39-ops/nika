@@ -150,7 +150,7 @@ video {
  /* На телефонах 100vh включает скрываемые панели браузера — svh точнее.
     Браузеры без поддержки svh оставят 100vh строкой выше */
  height: 100svh;
- background-image: url("videos/opt/obhee.jpg");
+ background-image: url("../videos/opt/obhee.jpg");
  background-position: center 65%;
  background-size: cover;
  position: relative;
@@ -236,7 +236,7 @@ video {
 }
 
 .gde-name{
- letter-spacing: 3px;
+ letter-spacing: 1px;
  /* Размер заголовка подстраивается под ширину окна, чтобы
     при зуме он не вылезал за край */
  font-size: clamp(30px, 5vw, 60px);
@@ -378,7 +378,7 @@ video {
   font-size: clamp(38px, 5vw, 64px);
   line-height: 1;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.01;
 }
 
 .camp-card_title--green {
@@ -740,6 +740,7 @@ font-weight: 700;
 .carousel-card_info {
   margin-top: 16px;
   padding: 0 4px;
+  text-align: center;
 }
 
 .carousel-card_name {
@@ -748,6 +749,7 @@ font-weight: 700;
   font-weight: 700;
   color: #fff;
   text-transform: uppercase;
+
 }
 
 .carousel-card_role {
@@ -830,7 +832,7 @@ font-weight: 700;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url("videos/opt/fon4.jpg");
+    background-image: url("../videos/opt/fon4.jpg");
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -841,7 +843,7 @@ font-weight: 700;
           rgba(168, 216, 4, 0.9) 30%,   /* чуть зелёного */
           rgba(168, 216, 4, 1) 100%   /* почти непрозрачный — фото видно */
         ),
-        url("videos/opt/fon4.jpg");
+        url("../videos/opt/fon4.jpg");
         filter: brightness(0.95);
       background-position: center center;
       background-size: cover;
