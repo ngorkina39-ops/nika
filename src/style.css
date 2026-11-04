@@ -409,13 +409,27 @@ video {
 .camp-gallery_track {
   display: flex;
   width: max-content;
-  /* Длительность считает JS от ширины ленты, чтобы скорость была одинаковой */
-  animation: camp-gallery-marquee var(--camp-marquee-duration, 30s) linear infinite;
+  /* Длительность считает JS от ширины ленты, чтобы скорость была одинаковой.
+     Свойства заданы отдельно: Safari на iPhone иногда неправильно разбирает
+     сокращённую запись animation, если внутри неё используется var() */
+  animation-name: camp-gallery-marquee;
+  animation-duration: var(--camp-marquee-duration, 30s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  -webkit-animation-name: camp-gallery-marquee;
+  -webkit-animation-duration: var(--camp-marquee-duration, 30s);
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
   will-change: transform;
 }
 
-.camp-gallery:hover .camp-gallery_track {
-  animation-play-state: paused;
+/* Пауза при наведении — только для устройств с настоящей мышью.
+   На iPhone «залипший» :hover после касания останавливал ленту навсегда */
+@media (hover: hover) and (pointer: fine) {
+  .camp-gallery:hover .camp-gallery_track {
+    animation-play-state: paused;
+    -webkit-animation-play-state: paused;
+  }
 }
 
 /* Один набор из 6 фото; JS добавляет второй такой же для бесшовного цикла */
@@ -457,9 +471,13 @@ video {
   }
 }
 
+/* На iPhone «Уменьшение движения» (Reduce Motion) включено у многих
+   пользователей — из-за этого лента полностью останавливалась и выглядела
+   сломанной. Не отключаем её, а заметно замедляем. */
 @media (prefers-reduced-motion: reduce) {
   .camp-gallery_track {
-    animation: none;
+    animation-duration: calc(var(--camp-marquee-duration, 30s) * 2);
+    -webkit-animation-duration: calc(var(--camp-marquee-duration, 30s) * 2);
   }
 }
 
