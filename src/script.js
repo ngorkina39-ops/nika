@@ -212,43 +212,87 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 });
 
-// Дублируем наборы фото в лентах лагерей — для бесшовной зацикленной прокрутки.
-// Скорость задаём в px/сек и считаем её от реальной ширины ленты, чтобы обе
-// карточки двигались одинаково, даже если ширина ленты у них разная.
+// Бесконечная лента фото лагерей.
+// Двигаем её вручную через requestAnimationFrame и translate3d в пикселях.
+// CSS-анимация с translateX(-50%) на iPhone в Safari работала нестабильно:
+// лента «доходила» до конца, показывала пустое место и начиналась заново.
 document.addEventListener('DOMContentLoaded', () => {
   const PX_PER_SECOND = 40;
-
-  function updateMarqueeSpeed(track) {
-    const set = track.querySelector('.camp-gallery_set');
-    if (!set) return;
-    const setWidth = set.getBoundingClientRect().width;
-    if (!setWidth) return;
-    // Один цикл анимации = ширина одного набора фото
-    track.style.setProperty('--camp-marquee-duration', `${setWidth / PX_PER_SECOND}s`);
-  }
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
 
   document.querySelectorAll('.camp-gallery_track').forEach((track) => {
     const set = track.querySelector('.camp-gallery_set');
     if (!set) return;
+
+    // Вторая копия набора делает переход с конца в начало бесшовным
     const clone = set.cloneNode(true);
     clone.setAttribute('aria-hidden', 'true');
-    // Safari на iPhone не подгружает lazy-картинки, которые находятся
-    // за пределами экрана внутри трансформируемой ленты. Из-за этого
-    // во второй половине цикла появлялись пустые места.
     clone.querySelectorAll('img').forEach((img) => {
       img.loading = 'eager';
+      img.decoding = 'async';
     });
     track.appendChild(clone);
-    updateMarqueeSpeed(track);
-  });
 
-  // При изменении окна ширина фото меняется (clamp) — пересчитываем скорость
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      document.querySelectorAll('.camp-gallery_track').forEach(updateMarqueeSpeed);
-    }, 150);
+    let setWidth = 0;
+    let offset = 0;
+    let lastTime = null;
+    let paused = false;
+
+    const measure = () => {
+      setWidth = set.getBoundingClientRect().width;
+    };
+
+    const render = () => {
+      track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+    };
+
+    const frame = (time) => {
+      if (lastTime === null) lastTime = time;
+      const delta = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      if (!paused && setWidth > 0) {
+        // При «Уменьшении движения» прокрутка просто медленнее
+        const speed = reducedMotion.matches ? PX_PER_SECOND / 2 : PX_PER_SECOND;
+        offset = (offset + speed * delta) % setWidth;
+        render();
+      }
+
+      requestAnimationFrame(frame);
+    };
+
+    measure();
+    render();
+    requestAnimationFrame(frame);
+
+    // Пауза при наведении — только там, где есть настоящая мышь
+    if (canHover.matches) {
+      const area = track.parentElement;
+      area.addEventListener('mouseenter', () => {
+        paused = true;
+      });
+      area.addEventListener('mouseleave', () => {
+        paused = false;
+        lastTime = null;
+      });
+    }
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        measure();
+        offset = setWidth ? offset % setWidth : 0;
+        render();
+      }, 150);
+    });
+
+    // Шрифты могут изменить ширину элементов — пересчитываем после загрузки
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(measure);
+    }
+    window.addEventListener('load', measure);
   });
 });
 

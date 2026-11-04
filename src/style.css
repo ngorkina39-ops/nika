@@ -402,34 +402,42 @@ video {
   margin-top: auto;
   padding-top: clamp(16px, 2vw, 28px);
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
+  position: relative;
+}
+
+/* Плавное затухание по краям. Раньше здесь был mask-image, но Safari
+   на iPhone некорректно отрисовывал маску у анимированной ленты —
+   появлялись пустые (белые) участки. Градиентные накладки надёжнее. */
+.camp-gallery::before,
+.camp-gallery::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(12px, 4%, 32px);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.camp-gallery::before {
+  left: 0;
+  background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.camp-gallery::after {
+  right: 0;
+  background: linear-gradient(270deg, #fff 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 .camp-gallery_track {
   display: flex;
   width: max-content;
-  /* Длительность считает JS от ширины ленты, чтобы скорость была одинаковой.
-     Свойства заданы отдельно: Safari на iPhone иногда неправильно разбирает
-     сокращённую запись animation, если внутри неё используется var() */
-  animation-name: camp-gallery-marquee;
-  animation-duration: var(--camp-marquee-duration, 30s);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  -webkit-animation-name: camp-gallery-marquee;
-  -webkit-animation-duration: var(--camp-marquee-duration, 30s);
-  -webkit-animation-timing-function: linear;
-  -webkit-animation-iteration-count: infinite;
+  /* Ленту двигает script.js через transform (пиксели), без CSS-анимации:
+     так Safari на iPhone не теряет часть кадров и не рисует пустоты. */
   will-change: transform;
-}
-
-/* Пауза при наведении — только для устройств с настоящей мышью.
-   На iPhone «залипший» :hover после касания останавливал ленту навсегда */
-@media (hover: hover) and (pointer: fine) {
-  .camp-gallery:hover .camp-gallery_track {
-    animation-play-state: paused;
-    -webkit-animation-play-state: paused;
-  }
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Один набор из 6 фото; JS добавляет второй такой же для бесшовного цикла */
@@ -462,24 +470,6 @@ video {
   object-fit: cover;
 }
 
-@keyframes camp-gallery-marquee {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* На iPhone «Уменьшение движения» (Reduce Motion) включено у многих
-   пользователей — из-за этого лента полностью останавливалась и выглядела
-   сломанной. Не отключаем её, а заметно замедляем. */
-@media (prefers-reduced-motion: reduce) {
-  .camp-gallery_track {
-    animation-duration: calc(var(--camp-marquee-duration, 30s) * 2);
-    -webkit-animation-duration: calc(var(--camp-marquee-duration, 30s) * 2);
-  }
-}
 
 
 .content{
