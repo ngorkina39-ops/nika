@@ -232,6 +232,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!set) return;
     const clone = set.cloneNode(true);
     clone.setAttribute('aria-hidden', 'true');
+    // Safari на iPhone не подгружает lazy-картинки, которые находятся
+    // за пределами экрана внутри трансформируемой ленты. Из-за этого
+    // во второй половине цикла появлялись пустые места.
+    clone.querySelectorAll('img').forEach((img) => {
+      img.loading = 'eager';
+    });
     track.appendChild(clone);
     updateMarqueeSpeed(track);
   });
